@@ -14,7 +14,7 @@ release = {name='prediccionAEMET getPrevButton', ver=0, mayor=0, minor=1}
 --[[----- CONFIGURACION AVANZADA ---------------------------------------------]]
 -- obtener el ID de este dispositivo virtual
 OFF=1;INFO=2;DEBUG=3		-- esto es una referencia para el log, no cambiar
-nivelLog = DEBUG			-- nivel de log
+nivelLog = INFO			-- nivel de log
 --[[----- FIN CONFIGURACION AVANZADA -----------------------------------------]]
 
 --[[
@@ -28,14 +28,6 @@ function _log(level, log)
   end
   return
 end
-
--- sisema de LOG
-LOG = {}
-OFF=1; INFO=2; DEBUG=3
-LOG[1]='OFF'; LOG[2]='INFO'; LOG[3]='DEBUG'
-
--- Indicar el nivel de LOG Actual
-local nivelLog = DEBUG
 
 --[[--------------------------------------------------------------------------]]
 
