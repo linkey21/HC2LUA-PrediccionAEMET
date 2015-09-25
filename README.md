@@ -1,2 +1,3 @@
 # HC2LUA-PrediccionAEMET
-Recuperar la predicción meteorológica del AEMET
+Recupera la predicción meteorológica del AEMET XML y la transform en una tabla
+para almacenar en formato json.
