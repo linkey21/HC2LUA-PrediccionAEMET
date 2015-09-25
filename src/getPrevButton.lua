@@ -1,40 +1,28 @@
---[[Control de consumo
-	VD Consumo
-	boton actualizarFactura.lua
-	por Antonio Maestre & Manuel Pascual
---------------------------------------------------------------------------------]]
-release = {name='prediccionAEMET getPrevButton', ver=0, mayor=0, minor=2}
+--[[Prediccion-AEMET
+	Dispositivo virtual
+	getPrevButton.lua
+	por Manuel Pascual
+------------------------------------------------------------------------------]]
+release = {name='prediccionAEMET getPrevButton', ver=0, mayor=0, minor=1}
 
---[[----- CONFIGURACION DE USUARIO ---------------------------------------------]]
-globalVarName = 'consumoEnergia'-- nombre de la variable global para almacenar consumo
-local preciokwhterminofijo=0.115188;
-local pvpc=true
-local pvpcTipoTarifa = '20'				-- '20', '20H', '20HS'
-local potenciacontratadakw=4.6;
-local preciokwhmercadolibre=0.12;
-local precioalquilerequipodia=0.027616;
-local porcentajeIVA=21;
-local porcentajeimpuestoelectricidad=5.11269632;
---[[----- FIN CONFIGURACION DE USUARIO -----------------------------------------]]
+--[[----- CONFIGURACION DE USUARIO -------------------------------------------]]
 
---[[----- NO CAMBIAR EL CODIGO A PARTIR DE AQUI --------------------------------]]
+--[[----- FIN CONFIGURACION DE USUARIO ---------------------------------------]]
 
---[[----- CONFIGURACION AVANZADA -----------------------------------------------]]
+--[[----- NO CAMBIAR EL CODIGO A PARTIR DE AQUI ------------------------------]]
+
+--[[----- CONFIGURACION AVANZADA ---------------------------------------------]]
 -- obtener el ID de este dispositivo virtual
 OFF=1;INFO=2;DEBUG=3		-- esto es una referencia para el log, no cambiar
 nivelLog = DEBUG			-- nivel de log
-local _selfId = fibaro:getSelfId();
---[[----- FIN CONFIGURACION AVANZADA -------------------------------------------]]
-
+--[[----- FIN CONFIGURACION AVANZADA -----------------------------------------]]
 
 --[[
 _log(level, log)
 	funcion para operar el nivel de LOG
---------------------------------------------------------------------------------]]
+------------------------------------------------------------------------------]]
 function _log(level, log)
   if log == nil then log = 'nil' end
-  local LOG = {}
-  LOG[1]='OFF'; LOG[2]='INFO'; LOG[3]='DEBUG';
   if nivelLog >= level then
     fibaro:debug(log)
   end
@@ -49,7 +37,7 @@ LOG[1]='OFF'; LOG[2]='INFO'; LOG[3]='DEBUG'
 -- Indicar el nivel de LOG Actual
 local nivelLog = DEBUG
 
---[[----------------------------------------------------------------------------]]
+--[[--------------------------------------------------------------------------]]
 
 function _parseargs(s)
   local arg = {}
@@ -58,7 +46,7 @@ function _parseargs(s)
   end)
   return arg
 end
-    
+
 function _collect(s)
   local stack = {}
   local top = {}
@@ -100,7 +88,7 @@ function _collect(s)
   return stack[1]
 end
 
---[[----------------------------------------------------------------------------]]
+--[[--------------------------------------------------------------------------]]
 function getPredictionTab(rawPredictionTab)
   local predictionTab = {}
   for rootKey, rootValue in pairs(rawPredictionTab) do
@@ -120,7 +108,7 @@ function getPredictionTab(rawPredictionTab)
   return predictionTab
 end
 
---[[----------------------------------------------------------------------------]]
+--[[--------------------------------------------------------------------------]]
 function formatDayPredictionTab(dayPredictionTab)
   local formatTempTab = {}
   local formatProbTab = {}
@@ -156,8 +144,8 @@ function formatDayPredictionTab(dayPredictionTab)
       local direccion = value[1][1]
       local velocidad = value[2][1]
       local periodo = value['xarg']['periodo']
-      formatVienTab[#formatVienTab + 1] = {periodo = periodo, direccion = direccion,
-      velocidad = velocidad}
+      formatVienTab[#formatVienTab + 1] = {periodo = periodo, direccion =
+       direccion, velocidad = velocidad}
     end
     -- pasamos de obtener racha maxima
     -- obtener temperatura
@@ -177,7 +165,7 @@ function formatDayPredictionTab(dayPredictionTab)
   			viento = formatVienTab, indiceUV = formatUv}
 end
 
---[[----------------------------------------------------------------------------]]
+--[[--------------------------------------------------------------------------]]
 function getDayPredictionTab(predictionTab, timeStamp)
   -- obtener una tabla con la fecha de timestamp
   local timeStampTab = os.date("*t", timeStamp)
@@ -214,7 +202,7 @@ end
 --[[
 _log(level, log)
 Logger
---------------------------------------------------------------------------------]]
+------------------------------------------------------------------------------]]
 function _log(level, log)
   if nivelLog >= level then
     fibaro:debug(log)
@@ -227,7 +215,7 @@ _inTable(tbl, item)
   función para saber si un item pertenece a la tabla
   tbl
   item
---------------------------------------------------------------------------------]]
+------------------------------------------------------------------------------]]
 function _inTable(tbl, item)
   _log(DEBUG, '_inTable')
   for key, value in pairs(tbl) do
@@ -238,7 +226,7 @@ function _inTable(tbl, item)
   return false
 end
 
---[[----------------------------------------------------------------------------]]
+--[[--------------------------------------------------------------------------]]
 function getPeriodValue(myTab, hour)
   _log(DEBUG, 'getPeriodValue')
   for key, value in pairs (myTab) do
@@ -259,20 +247,20 @@ function getPeriodValue(myTab, hour)
   return {}
 end
 
---[[----------------------------------------------------------------------------]]
+--[[--------------------------------------------------------------------------]]
 function getHourPredictionTab(dayPredictionTab, hour)
   hourPredictionTab = {}
   -- Probavilidad de precipitación
-  hourPredictionTab['probLluvia'] = 
+  hourPredictionTab['probLluvia'] =
   	getPeriodValue(dayPredictionTab.probLluvia, hour)
   -- Cota de nieve
-  hourPredictionTab['cotaNieve'] = 
+  hourPredictionTab['cotaNieve'] =
   	getPeriodValue(dayPredictionTab.cotaNieve, hour)
   -- Estado del cielo
-  hourPredictionTab['estadoCielo'] = 
+  hourPredictionTab['estadoCielo'] =
   	getPeriodValue(dayPredictionTab.estadoCielo, hour)
   -- Viento
-  hourPredictionTab['viento'] = 
+  hourPredictionTab['viento'] =
   	getPeriodValue(dayPredictionTab.viento, hour)
   -- Temperatura
   _log(DEBUG, json.encode(dayPredictionTab.temperatura))
@@ -281,16 +269,16 @@ function getHourPredictionTab(dayPredictionTab, hour)
    function (a1, a2) return a1.hora < a2.hora; end)
   for key, value in pairs(dayPredictionTab.temperatura.hora) do
   	if hour <= tonumber(value.hora) then
-  	  hourPredictionTab['temperatura'] = value.valor 
+  	  hourPredictionTab['temperatura'] = value.valor
   	end
   end
   -- Indice UV máximo
   hourPredictionTab['indiceUV'] = dayPredictionTab.indiceUV
-  
+
   return hourPredictionTab
 end
 
---[[----------------------------------------------------------------------------]]
+--[[--------------------------------------------------------------------------]]
 function getFormatTempTab(tempTab)
   --
   local formatTempTab = {}
@@ -316,14 +304,14 @@ function getFormatTempTab(tempTab)
   return formatTempTab
 end
 
---[[----------------------------------------------------------------------------]]
+--[[--------------------------------------------------------------------------]]
 labelProbavilidad = 'prob'
 labelCotaNieve = 'cota'
 labelEstadoCielo = 'estado'
 labelViento = 'viento'
 labelTemperatura = 'temperatura'
 labelIndUVMax = 'uv'
---[[----------------------------------------------------------------------------]]
+--[[--------------------------------------------------------------------------]]
 -- obtener este dispositivo
 local thisDev = fibaro:getSelfId()
 -- variables para IP y puerto
@@ -340,8 +328,7 @@ local predictionTab = getPredictionTab(_collect(http:GET(URL)))
 local dayPredictionTab = getDayPredictionTab(predictionTab, os.time())
 
 -- obtener tabla de tiempo actual
-
-local hora = tonumber(os.date("*t", os.time()).hour)
+local hora = tonumber(os.date('%H'))
 local nowPredictionTab = getHourPredictionTab(dayPredictionTab, hora)
 
 fibaro:debug(json.encode(nowPredictionTab))
